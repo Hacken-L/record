@@ -1,0 +1,136 @@
+ethtool -i 1b:00.0
+
+type C:\Users\"Work Smart"\.ssh\id_rsa.pub | ssh 10.0.0.0 "cat >> .ssh/authorized_keys"
+
+linux追加远程文件内容到命令
+$ ssh user@remote_host "echo 'new content' >> /path/to/remote/file"
+
+pssh -h iplist -i "sudo yum install python"
+
+#!/bin/bash
+pub_key_file="/root/id_rsa.pub"
+iplist="/root/iplist-1005"
+while IFS=read -r ip_address; do
+     ssh user@$ip_address "cat $pub_key_file >> ~/.ssh/authorized_keys"
+done < "$iplist"
+
+for bdf in 1a:00.0 4f:00.0 90:00.0 b4:00.0; do mlxconfig -d $bdf q | grep CC; done;
+pssh -h iplist -i "for bdf in 1a:00.0 4f:00.0 90:00.0 b4:00.0;do mlxconfig -d $bdf q | grep CC; done;"
+
+pssh -h iplist -i "mlxconfig -d 1b:00.0 q | grep CC"
+pssh -h iplist -i "for bdf in 1a:00.0 4f:00.0 90:00.0 b4:00.0;do mlxconfig -d $bdf q | grep CC;done;"
+
+(1)配置使用PCC
+pssh -h iplist -i "cd hpcc && for bdf in 1a:00.0 4f:00.0 90:00.0 b4:00.0;do mlxconfig -y -d $bdf s ROCE_CC_LEGACY_DCQCN=0;done;"
+pssh -h iplist -i "cd hpcc && for bdf in 1a:00.0 4f:00.0 90:00.0 b4:00.0;do mlxconfig -y -d $bdf s USER_PROGRAMMABLE_CC=1 HPCC_INT_EN=1 HPCC_INT_NP_RTT_DSCP_EN=1 HPCC-INT_NP_RTT_DSCP=31;done;"
+
+(2) forcepcc 
+pssh -h iplist -i "cd hpcc && for bdf in 1a:00.0 4f:00.0 90:00.0 b4:00.0; do ./force_hpcc_22.31.2912x $bdf set; done;"
+pssh -h iplist -i "cd hpcc && for bdf in 1a:00.0 4f:00.0 90:00.0 b4:00.0; do ./force_hpcc_22.31.2912x $bdf query; done;"
+
+(3) destip/qp
+pssh -h iplist -i "cd hpcc && for bdf in 1a:00.0 4f:00.0 90:00.0 b4:00.0; do ./destip_or_qp_mode_22.31.2912x $bdf destip; done;"
+pssh -h iplist -i "cd hpcc && for bdf in 1a:00.0 4f:00.0 90:00.0 b4:00.0; do ./destip_or_qp_mode_22.31.2912x $bdf qp; done;"
+pssh -h iplist -i "cd hpcc && for bdf in 1a:00.0 4f:00.0 90:00.0 b4:00.0; do ./destip_or_qp_mode_22.31.2912x $bdf query; done;"
+
+(4)生成镜像
+./mlnx_cc_image_gen -e ./bin/ccir_user_app.elf -i hpcc-int -s 0
+
+(5)烧写
+pssh -h iplist -i "cd hpcc && for bdf in 1a:00.0 4f:00.0 90:00.0 b4:00.0;do flint -d $bdf -i hpcc-int -cc beta burn; done;"
+
+数据中心内的网络感觉每次都在干为人作嫁的事，比如搜索业务里为搜索作家，主要目的是搜索，网络是为了提高搜索的性能；在存储业务里为存储作家，主要目的是存储，网络是为了提高存储的带宽性能。
+在计算业务里为计算作嫁，提高计算速率提供高性能计算。所以感觉网络在数据中心里总是配角，目的是为了给数据中心内存储，计算，搜索广告推广服务的，主要目的是业务，我们不是主角。
+所以我经常想，如果把数据中心1000台计算机全部捏成一个大机器，这个大机器自己去工作，那数据中心内就不关现代计算机网络什么事了（没现代计算机网络什么业务了）
+
+server: ib_write_lat -d mlx5_bond_0 -a -F
+client: ib_write_lat -d mlx5_bond_1 -a -F 200.129.64.2
+
+ib_write_bw -F --report_gbits --ib-dev=mlx5_bond_0 --ib-port=1 -x 3 --tclass=136 --mtu=1024 --run_infinitely -D 1 -q 64 -p 20001
+ib_write_bw -F --report_gbits --ib-dev=mlx5_bond_0 --ib-port=1 -x 3 --tclass=136 --mtu=1024 --run_infinitely -D 1 -q 64 -p 20001 192.168.131.169
+
+ibdev2netdev
+
+cat 1221 | grep q_len | asw -F "=" '{print $2}' >qlen.txt
+cat 1221 | grep u | asw -F "=" '{print $2}' > window.txt
+sed 's/=/' 1223 > 1223-deal
+
+cat /sys/class/net/eth0/ecn/roce_np/min_time_between_cnps
+
+du --max-depth=1 -h ./
+
+chown
+
+配置大页
+echo 20000 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+
+tcpump -i mlx5_bond_0 "host 11.159.116.157" -c 50000 -w res.cap -Z root
+
+查看网络设备
+ibv_devices
+ibv_devinfo
+ibdev2netdev
+
+时间同步
+pssh -h ipist -i "sudo date -s '2023-05-11'"
+pssh -h ipist -i "sudo date -s '14:05:30'"
+
+
+替换字符
+sudo sed -i '/MLNX_FW_VER_12/s/.*/MLNX_FW_VER_12=16.28.1002:22.31.2904:22.31.2912/' /etc/sysconfig/rdma/config/rdma-service
+该命令使用了sed命令的-i选项，用于编辑文件。被编辑的文件是/etc/sysconfig/rdma/config/rdma-service
+命令在该文件中搜索包含"MLNX_FW_VER_12"的行，并将整行替换为"MLNX_FW_VER_12=16.28.1002:22.31.2904:22.31.2912/"
+
+sed -i 's/nameserver 33.254.78.201/nameserver 100.100.2.136/g' /etc/resolv.conf
+
+查看centos版本
+cat /etc/redhat-release
+
+ip route 
+ip route del default
+ip route add default via 100.83.160.247 dev bond0
+
+安装nvidia cuda
+yum install -b current -y nvidia-driver-latest-dkms
+yum install -b current -y cuda
+yum install -y -b current nvidia-container-toolkit
+
+ib_write_bw -F --report_gbits --ib-dev=mlx5_bond_1 --run_infinitely -D 1 -p 8318 -q 8 &
+ib_write_bw -F --report_gbits --ib-dev=mlx5_bond_2 --run_infinitely -D 1 -p 8318 -q 8 127.0.0.1
+
+/etc/sysconfig/network-scripts
+
+arp -s 100.83.162.161 00:00:5e:00:01:01 dev eth4
+
+BONDING_OPTS="mode=1 miimon=100 primary=eth0"
+
+ifenslave bond0 eth3
+ifenslave bond0 eth5
+
+ip link set ens83f0 master bond0
+
+ethtool -s eth0 speed 100000 autoneg off
+ethtool -s eth0 autoneg on
+ethtool -s eth0 speed 100000 autoneg on
+
+arp -s 100.88.27.72 00:00:5e:00:01:01 dev bond0
+
+ls -lht
+列出修改日期
+
+con te进入交换机config terminal模式
+int 1-10
+shutdown
+no shutdown
+
+git checkout -b scp origin/scp
+
+lspci | grep NVIDIA
+lspci | grep -v Intel
+lspci | grep -v Intel | grep -v bridge
+
+find /sys/class -name "NVIDIA"
+find /sys/class -name "13:00.0"
+find /sys/class -name "0000:13:00.0*"
+
+

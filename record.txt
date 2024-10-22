@@ -1,0 +1,42 @@
+ssh-keygen -t rsa -C "xxx@xx.com"
+
+cat .ssh/id_rsa.pub
+
+如果跑knb机器提示
+./knb
+/lib64/libstdc++.so.6: version `GLIBCXX_3.4.20` not found (required by ./knb)
+/lib64/libstdc++.so.6: version `CXXABI_1.3.8` not found (required by ./knb)
+则说明/lib64/libstdc++.so.6里边没有这两个文件，有可能是libstdc++的版本太低
+
+#strings /usr/lib64/libstdc++.so.6 | grep GLIBC
+这个命令的意思是从/usr/lib64/libstdc++.so.6文件中提取出所有的可打印字符串，并用grep命令过滤出包含GLIBC的字符串。
+这样可以查看这个文件支持的GLIBC版本
+显示中没找到GLIBCXX_3.4.20 说明没有
+
+则更新libstdc++
+1. 先下载libstdc++.so.6.0.20
+	https://github.com/DevopsRizwan/requiredlibbin
+	这个仓库下面有libstdc++.so.6.0.20，下载下来
+	把libstdc++.so.6.0.20放到/usr/lib64下
+2. 检查libstdc++.so.6的链接
+	ls -l libstdc++.so.6
+	发现链接到了6.0.19
+	(libstdc++.so.6 -> libstdc++.so.6.0.19)
+3. 取消链接
+	unlink libstdc++.so.6
+4. 再次创建链接
+	ln -s libstdc++.so.6.0.20 libstdc++.so.6
+5. 再次查看链接
+	ls -l libstdc++.so.6
+	发现链接到了6.0.20
+6. 如果报错 error while loading shared libraries: libasan.so.0，则需要yum install libasan
+
+如果solar连不上，可能是因为mtu是设的1500，而solar包的固定大小是4500
+ifconfig bond0 mtu 9000
+就可以了
+
+git 调试
+set substitute-path /apsarapangu/disk2/ljr/kuafu /dev/disk/kuafu
+sync -r /apsarapangu/disk2/ljr/kuafu lijiarui.ljr@xx:/dev/disk/ljr
+
+
